@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:osbb/password_reset.dart';
 import 'package:osbb/user_registration.dart';  
 import 'password_reset.dart';
@@ -22,7 +23,15 @@ class LoginScreen extends StatelessWidget{
   Widget build(BuildContext context) {  
     return Scaffold(  
         appBar: AppBar(  
-          title: Text('ОСББ'),  
+          centerTitle: true,
+          backgroundColor: HexColor("#8D69FF"),
+          title: new Text('Log In'),
+             bottom: PreferredSize(
+      child: Container(
+         color: HexColor("#7D5DE2"),
+         height: 4.0,
+      ),
+      preferredSize: Size.fromHeight(4.0)),
         ),  
         body: Padding(  
             padding: EdgeInsets.all(15),  
@@ -33,8 +42,8 @@ class LoginScreen extends StatelessWidget{
                   child: TextField(  
                     decoration: InputDecoration(  
                       border: OutlineInputBorder(),  
-                      labelText: 'User Name',  
-                      hintText: 'Enter Your Name',  
+                      labelText: 'Email',  
+                      hintText: 'Enter your email',  
                     ),  
                   ),  
                 ),  
@@ -49,10 +58,11 @@ class LoginScreen extends StatelessWidget{
                     ),  
                   ),  
                 ),
-                RaisedButton(  
-                  textColor: Colors.white,  
-                  color: Colors.blue,  
-                  child: Text('Sign In'),  
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: HexColor("#DACEFF")
+                  ),
+                  child: Text('Sign In', style: TextStyle(color: HexColor("#8D69FF"),fontWeight: FontWeight.bold)),  
                   onPressed: (){},  
                 ),
                 InkWell(

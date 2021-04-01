@@ -23,6 +23,7 @@ class MyFormState extends State {
                   'Номер вашої квартири:',
                   style: TextStyle(fontSize: 20.0),
                 ),
+                // ignore: missing_return
                 new TextFormField(validator: (value) {
                   if (value.isEmpty)
                     return 'Будь ласка, вкажіть номер квартири в якій живете';

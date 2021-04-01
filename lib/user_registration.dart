@@ -1,144 +1,193 @@
+import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:hexcolor/hexcolor.dart';
 
-enum GenderList { male, female }
-
-
-class UserRegistration extends StatelessWidget{
+class UserRegistration extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        home: GetTextFieldValue()
-          );
+    return MaterialApp(home: GetTextFieldValue());
   }
 }
 
 class GetTextFieldValue extends StatefulWidget {
- 
   _TextFieldValueState createState() => _TextFieldValueState();
- 
 }
- 
+
 class _TextFieldValueState extends State<GetTextFieldValue> {
- 
-  final textFieldValueHolder = TextEditingController();
- 
-  String result = '';
- 
-  getTextInputData(){
+  // ignore: non_constant_identifier_names
+  final email_h = TextEditingController();
+  final name_h = TextEditingController();
+  final password_h = TextEditingController();
+  final aps_h = TextEditingController();
+  final number_h = TextEditingController();
+
+  String email = '';
+  String password = '';
+  String name = '';
+  String aps = '';
+  String number = '';
+
+  getTextInputData() {
     setState(() {
-      result = textFieldValueHolder.text;
-      // POST Request premaking
-      /*
-      Future<http.Response> postRequest () async {
-        var url ='https://pae.ipportalegre.pt/testes2/wsjson/api/app/ws-authenticate';
-        var body = jsonEncode();
-      }*/
+      email = email_h.text;
+      password = password_h.text;
+      name = name_h.text;
+      aps = aps_h.text;
+      number = number_h.text;
     });
   }
- 
+
+  // ignore: missing_return
+  Future<String> makeRequest() async {
+    email = email_h.text;
+    password = password_h.text;
+    name = name_h.text;
+    aps = aps_h.text;
+    number = number_h.text;
+    String url = 'https://steposbbwebapi.azurewebsites.net/api/registration';
+    var response = await http.post(Uri.encodeFull(url),
+        body: json.encode({
+          "email": "$email",
+          "password": "$password",
+          "name": "$name",
+          "phonenumber": "$number",
+          "apartmentnumber": "$aps"
+        }),
+        headers: {"Content-Type": "application/json"});
+    print("$email, $password, $number, $aps, $name");
+    var b = response.body;
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Акаунт успішно зареєстровано'),
+            content: const Text(''),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Супер!'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Сталась помилка. $b'),
+            content: const Text(''),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Супер!'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+    ;
+  }
+
   @override
-  final _formKey = GlobalKey<FormState>();
-  GenderList _gender;
-  bool _agreement = false;
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Registration'),
+          centerTitle: true,
+          backgroundColor: HexColor("#8D69FF"),
+          title: new Text('Register'),
         ),
-
-      body: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: new Form(
-            key: _formKey,
-            child: new Column(
+        body: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
               children: <Widget>[
-                new Text(
-                  'Імя користувача:',
-                  style: TextStyle(fontSize: 20.0),
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    controller: name_h,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Name Surname',
+                      hintText: 'Enter your name and surname',
+                    ),
+                  ),
                 ),
-                new TextFormField(validator: (value) {
-                  if (value.isEmpty) return 'Будь ласка, вкажіть своє імя';
-                }),
-                new SizedBox(height: 20.0),
-                new Text(
-                  'Ваш E-mail:',
-                  style: TextStyle(fontSize: 20.0),
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    controller: number_h,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Phone number',
+                      hintText: 'Enter your phone number',
+                    ),
+                  ),
                 ),
-                new TextFormField(validator: (value) {
-                  if (value.isEmpty) return 'Будь ласка вкажіть ваш Email';
-
-                  String p =
-                      "[a-zA-Z0-9+.\_\%-+]{1,256}@[a-zA-Z0-9][a-zA-Z0-9-]{0,64}(.[a-zA-Z0-9][a-zA-Z0-9-]{0,25})+";
-                  RegExp regExp = new RegExp(p);
-
-                  if (regExp.hasMatch(value)) return null;
-
-                  return 'Це не E-mail';
-                }),
-                new SizedBox(height: 20.0),
-                new Text(
-                  'Ваш рід:',
-                  style: TextStyle(fontSize: 20.0),
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    controller: email_h,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                      hintText: 'Enter your email address',
+                    ),
+                  ),
                 ),
-                new RadioListTile(
-                  title: const Text('Чоловік'),
-                  value: GenderList.male,
-                  groupValue: _gender,
-                  onChanged: (GenderList value) {
-                    setState(() {
-                      _gender = value;
-                    });
-                  },
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    controller: aps_h,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Apartments number',
+                      hintText: 'Enter your apartments number where you live',
+                    ),
+                  ),
                 ),
-                new RadioListTile(
-                  title: const Text('Жінка'),
-                  value: GenderList.female,
-                  groupValue: _gender,
-                  onChanged: (GenderList value) {
-                    setState(() {
-                      _gender = value;
-                    });
-                  },
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    controller: password_h,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                      hintText: 'Enter your password',
+                    ),
+                  ),
                 ),
-                new SizedBox(height: 20.0),
-                new CheckboxListTile(
-                    value: _agreement,
-                    title: new Text('Я ознайомлен' +
-                        (_gender == null
-                            ? '(ий)'
-                            : _gender == GenderList.male
-                                ? ''
-                                : 'а') +
-                        ' з правилами користування ОСББ та готовий нести покарання у вигляді штрафів за їх порушення!'),
-                    onChanged: (bool value) =>
-                        setState(() => _agreement = value)),
-                new SizedBox(height: 20.0),
-                new RaisedButton(
-                  onPressed: () {
-                    if (_formKey.currentState.validate()) {
-                      Color color = Colors.red;
-                      String text;
-
-                      if (_gender == null)
-                        text = 'Виберіть свій рід(чол/жін)';
-                      else if (_agreement == false)
-                        text = 'Необхідно прийняти правила користування ОСББ';
-                      else {
-                        text = 'Форма успішно заповнена';
-                        color = Colors.green;
-                      }
-
-                      Scaffold.of(context).showSnackBar(SnackBar(
-                        content: Text(text),
-                        backgroundColor: color,
-                      ));
-                    }
-                  },
-                  child: Text('Перевірити'),
-                  color: Colors.green,
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Confirm password',
+                      hintText: 'Confirm your password',
+                    ),
+                  ),
+                ),
+                RaisedButton(
                   textColor: Colors.white,
+                  color: HexColor("#DACEFF"),
+                  child: Text('Register',
+                      style: TextStyle(
+                          color: HexColor("#8D69FF"),
+                          fontWeight: FontWeight.bold)),
+                  onPressed: makeRequest,
                 )
               ],
-            ))));
+            )));
   }
-  }
+}
